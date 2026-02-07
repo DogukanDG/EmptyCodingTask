@@ -6,11 +6,10 @@ export const styles = StyleSheet.create({
 		flexDirection: "column",
 		width: "25%",
 		height: "90%",
-		borderRadius: 12,
 		backgroundColor: "#191F27",
 		marginTop: 24,
 		padding: 32,
-		gap: 12,
+		gap: 8,
 		overflow: "hidden",
 	},
 });
