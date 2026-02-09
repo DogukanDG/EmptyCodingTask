@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { View, Text, LayoutChangeEvent } from "react-native";
 import { Event } from "../../data/dummyEvents";
-import { styles, CARD_PADDING, CARD_GAP } from "./EventCard.styles";
+import { styles, CARD_PADDING, CARD_GAP, HORIZONTAL_THRESHOLD,TITLE_SIZE} from "./EventCard.styles";
+
+type Layout = "vertical" | "horizontal";
 
 interface EventCardProps {
 	event: Event;
@@ -9,27 +11,32 @@ interface EventCardProps {
 
 export default function EventCard({ event }: EventCardProps) {
 	const [iconSize, setIconSize] = useState(0);
-	const [titleHeight, setTitleHeight] = useState(30);
+	const [layout, setLayout] = useState<Layout>("vertical");
 
 	const handleCardLayout = (e: LayoutChangeEvent) => {
 		const { width, height } = e.nativeEvent.layout;
 		const availableWidth = width - CARD_PADDING.horizontal * 2;
-		const availableHeight = height - CARD_PADDING.vertical * 2 - titleHeight - CARD_GAP;
-		const newSize = Math.max(0, Math.min(availableWidth, availableHeight));
-		if (Math.abs(newSize - iconSize) > 1) {
-			setIconSize(newSize);
-		}
-	};
+		const availableHeight = height - CARD_PADDING.vertical * 2 - TITLE_SIZE - CARD_GAP;
+		const calculatedIcon = Math.max(0, Math.min(availableWidth, availableHeight));
 
-	const handleTitleLayout = (e: LayoutChangeEvent) => {
-		const newHeight = e.nativeEvent.layout.height;
-		if (Math.abs(newHeight - titleHeight) > 1) {
-			setTitleHeight(newHeight);
-		}
+
+		// If icon would be smaller than threshold, switch to horizontal
+		if (calculatedIcon <= HORIZONTAL_THRESHOLD) {
+        setLayout("horizontal");
+
+        const horizontalIconSize = height - CARD_PADDING.vertical * 2;
+        setIconSize(Math.min(horizontalIconSize, HORIZONTAL_THRESHOLD));
+    } else {
+        setLayout("vertical");
+        setIconSize(calculatedIcon);
+    }
 	};
 
 	return (
-		<View style={styles.card} onLayout={handleCardLayout}>
+		<View
+			style={[styles.card, layout === "horizontal" && styles.cardHorizontal]}
+			onLayout={handleCardLayout}
+		>
 			{iconSize > 0 && (
 				<View
 					style={[
@@ -46,7 +53,9 @@ export default function EventCard({ event }: EventCardProps) {
 					</Text>
 				</View>
 			)}
-			<Text style={styles.title} onLayout={handleTitleLayout}>
+			<Text 
+
+			style={[styles.title, layout === "horizontal" && styles.titleHorizontal]}>
 				{event.title}
 			</Text>
 		</View>
