@@ -10,6 +10,6 @@ export const styles = StyleSheet.create({
 		marginTop: 24,
 		padding: 32,
 		gap: 8,
-		overflow: "hidden",
+		
 	},
 });
